@@ -68,10 +68,14 @@ class KnapsackProblemFinal:
                 penalty = max(0, (1 - ((total_weight - pojemnosc) / pojemnosc)))
                 total_value *= penalty
             is_valid = total_weight <= pojemnosc
-            print(f"Chromosom: {chromosome}, Ciężar: {total_weight}, Cena: {total_value:.2f}, Poprawny: {is_valid}")
-            if total_value >= relative_threshold and is_valid: # could remove valid check but will be far less efficient
+            #print(f"Chromosom: {chromosome}, Ciężar: {total_weight}, Cena: {total_value:.2f}, Poprawny: {is_valid}")
+            if total_value >= relative_threshold and is_valid:
                 valid_chromosomes.append(chromosome)
-        print(f"Ilość chromosomów do dalszego krzyżowania: {len(valid_chromosomes)}")
+        chromosome_count = len(valid_chromosomes)
+        if chromosome_count <= 1:
+            print(f"Niewystarczająca liczba chromosomów aby kontynuować! ({chromosome_count})")
+            exit()
+        print(f"Ilość chromosomów do dalszego krzyżowania: {chromosome_count}")
         return valid_chromosomes
 
     def __fitness_function_single(self, chromosome: list[int], ciezar: list[int], ceny: list[int], pojemnosc: int) -> float:

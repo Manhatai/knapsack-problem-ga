@@ -101,7 +101,7 @@ class KnapsackProblemTest:
         if total_fitness == 0:
             print("Brak różnic w funkcji, wybór losowy.")
             return random.choice(valid_chromosomes)
-        probabilities = [fitness / total_fitness for fitness in fitness_scores]
+        probabilities = [(fitness / total_fitness) for fitness in fitness_scores]
         selected_index = np.random.choice(len(valid_chromosomes), p=probabilities)
         print(f"Prawdopodobieństwa: {probabilities}, Wybrany: {valid_chromosomes[selected_index]}")
         return valid_chromosomes[selected_index]
