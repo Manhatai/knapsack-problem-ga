@@ -19,8 +19,8 @@ class KnapsackProblemFinal:
 
     def __process_input_data(self, df: DataFrame) -> None:
         raw_csv_string = df.iloc[self.csv_row, 0]
-        parts_of_raw_csv_string = raw_csv_string.split(';')
-        ciezar = list(map(int, parts_of_raw_csv_string[0].strip('[]').split()))
+        parts_of_raw_csv_string = raw_csv_string.split(';') # ['[46 40 42 38 10]', '[12 19 19 15  8]', '40']
+        ciezar = list(map(int, parts_of_raw_csv_string[0].strip('[]').split())) # '46 40 42 38 10', ['46', '40', '42', '38', '10'], [46, 40, 42, 38, 10]
         ceny = list(map(int, parts_of_raw_csv_string[1].strip('[]').split()))
         pojemnosc = int(parts_of_raw_csv_string[2])
         self.__output_csv(ciezar, ceny, pojemnosc)
@@ -62,14 +62,14 @@ class KnapsackProblemFinal:
         max_total_value = sum(ceny)
         relative_threshold = self.relative_threshold_value * max_total_value
         for chromosome in population:
-            total_weight = sum(chromosome_bool * weight for chromosome_bool, weight in zip(chromosome, ciezar))
-            total_value = sum(chromosome_bool * value for chromosome_bool, value in zip(chromosome, ceny))
-            if total_weight > pojemnosc:
-                penalty = max(0, (1 - ((total_weight - pojemnosc) / pojemnosc)))
-                total_value *= penalty
-            is_valid = total_weight <= pojemnosc
-            #print(f"Chromosom: {chromosome}, Ciężar: {total_weight}, Cena: {total_value:.2f}, Poprawny: {is_valid}")
-            if total_value >= relative_threshold and is_valid:
+            weight = sum(chromosome_bool * weight for chromosome_bool, weight in zip(chromosome, ciezar))
+            price = sum(chromosome_bool * price for chromosome_bool, price in zip(chromosome, ceny))
+            if weight > pojemnosc:
+                penalty = (1 - ((weight - pojemnosc) / pojemnosc))
+                price *= penalty
+            is_valid = weight <= pojemnosc
+            print(f"Chromosom: {chromosome}, Ciężar: {weight}, Cena: {price:.2f}, Poprawny: {is_valid}")
+            if price >= relative_threshold and is_valid:
                 valid_chromosomes.append(chromosome)
         chromosome_count = len(valid_chromosomes)
         if chromosome_count <= 1:
@@ -79,15 +79,19 @@ class KnapsackProblemFinal:
         return valid_chromosomes
 
     def __fitness_function_single(self, chromosome: list[int], ciezar: list[int], ceny: list[int], pojemnosc: int) -> float:
-        total_weight = sum(chromosome_bool * weight for chromosome_bool, weight in zip(chromosome, ciezar))
-        total_value = sum(chromosome_bool * value for chromosome_bool, value in zip(chromosome, ceny))
-        if total_weight > pojemnosc:
-            penalty = max(0, (1 - ((total_weight - pojemnosc) / pojemnosc)))
-            total_value *= penalty
-        return total_value
+        max_total_value = sum(ceny)
+        relative_threshold = self.relative_threshold_value * max_total_value
+        weight = sum(chromosome_bool * weight for chromosome_bool, weight in zip(chromosome, ciezar))
+        price = sum(chromosome_bool * price for chromosome_bool, price in zip(chromosome, ceny))
+        if weight > pojemnosc:
+            penalty = (1 - ((weight - pojemnosc) / pojemnosc))
+            price *= penalty
+        is_valid = weight <= pojemnosc
+        if price >= relative_threshold and is_valid:
+            return price
 
     def __crossover_single_point(self, parent1: list[int], parent2: list[int]) -> tuple[list[int], list[int]]:
-        crossover_point = random.randint(1, len(parent1) - 1)
+        crossover_point = random.randint(1, len(parent1) - 1) # ustawic jednolity punkt
         child1 = parent1[:crossover_point] + parent2[crossover_point:]
         child2 = parent2[:crossover_point] + parent1[crossover_point:]
         return child1, child2
@@ -96,7 +100,7 @@ class KnapsackProblemFinal:
         if len(valid_chromosomes) < tournament_size:
             print("Za mało chromosomów do turnieju!")
             return random.choice(valid_chromosomes)
-        tournament = random.sample(valid_chromosomes, tournament_size)
+        tournament = random.sample(valid_chromosomes, tournament_size) # 
         fitness_scores = [self.__fitness_function_single(chromosome, ciezar, ceny, pojemnosc) for chromosome in tournament]
         best_index = np.argmax(fitness_scores)
         return tournament[best_index]

@@ -13,7 +13,7 @@ class KnapsackProblemTest:
         self.mutation_rate = mutation_rate
 
     def run(self) -> None:
-        df = pd.read_csv("data/zbior_danych_ag.csv")
+        df = pd.read_csv("./knapsack/data/zbior_danych_ag.csv")
         self.__process_input_data(df)
 
     def __process_input_data(self, df: DataFrame) -> None:
@@ -103,7 +103,7 @@ class KnapsackProblemTest:
             return random.choice(valid_chromosomes)
         probabilities = [(fitness / total_fitness) for fitness in fitness_scores]
         selected_index = np.random.choice(len(valid_chromosomes), p=probabilities)
-        print(f"Prawdopodobieństwa: {probabilities}, Wybrany: {valid_chromosomes[selected_index]}")
+        print(f"Prawdopodobieństwa: {probabilities}")
         return valid_chromosomes[selected_index]
     
     def __point_mutation(self, chromosome: list[int], mutation_rate: float) -> list[int]:
